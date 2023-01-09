@@ -1,0 +1,16 @@
+@urlDev=http://localhost:3000
+
+
+POST  {{urlDev}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "abc@gmail.com",
+  "password": "Abcd123"
+}
+
+
+###
+GET  {{urlDev}}/auth/current
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJpYXQiOjE2NzI5MDkxOTYsImV4cCI6MTY3MjkxNTE5Nn0.PCEVnaHBUw8Q6vgXYNiM00fPXfniTR3xlI9YxNtS8Kk
