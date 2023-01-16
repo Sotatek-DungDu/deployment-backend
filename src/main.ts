@@ -8,7 +8,6 @@ dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
   app.enableCors({
     origin: 'http://localhost:3000',
   });
@@ -18,7 +17,7 @@ async function bootstrap() {
 
   const options = new DocumentBuilder()
     .setTitle('Doc Api')
-    .setDescription('Api for Social App')
+    .setDescription('Api for Deployment System')
     .setVersion('1.0.0')
     .addBearerAuth()
     .build();

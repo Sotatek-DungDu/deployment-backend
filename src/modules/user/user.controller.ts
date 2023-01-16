@@ -15,12 +15,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { UserID } from 'shares/decorators/get-user-id.decorator';
+import { hasRoles } from 'shares/decorators/role.decorator';
 import { DecoratorUploadUserMedia } from 'shares/decorators/user-media.decorator';
 import { UserEntity } from 'src/model/entities/user.entity';
 import { UserService } from 'src/modules/user/user.service';
 import { RefreshAccessTokenDto } from '../auth/dto/refresh-access-token.dto';
 import { ResponseLogin } from '../auth/dto/response-login.dto';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+import { RolesGuard } from '../auth/guard/role.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { loginDto } from './dto/login.dto';
 import { UpdateUserDto } from './dto/update-user.dto';

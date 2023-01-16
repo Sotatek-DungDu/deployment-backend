@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { UserEntity } from './model/entities/user.entity';
 import { AuthModule } from './modules/auth/auth.module';
+import { ChildProcessModule } from './modules/child-process/child-process.module';
+import { CommandModule } from './modules/command/command.module';
 import { UserModule } from './modules/user/user.module';
 
 export const Modules = [
@@ -23,4 +25,6 @@ export const Modules = [
   }),
   UserModule,
   AuthModule,
+  ChildProcessModule,
+  CommandModule,
 ];

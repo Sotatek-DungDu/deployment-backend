@@ -1,0 +1,12 @@
+#yarn
+yarn
+yarn start
+
+#npm
+npm i
+npm start
+
+#git
+git status
+git pull --origin master
+git fetch --origin master

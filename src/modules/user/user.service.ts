@@ -73,13 +73,10 @@ export class UserService {
       ...refreshToken,
     };
   }
-
   async refreshAccessToken(
     refreshAccessTokenDto: RefreshAccessTokenDto,
   ): Promise<ResponseLogin> {
     const { refreshToken, accessToken } = refreshAccessTokenDto;
-    console.log('refreshToken', refreshToken);
-    console.log('accessToken', accessToken);
     const oldHashAccessToken = await this.cacheManager.get<string>(
       `${'AUTH_CACHE'}${refreshToken}`,
     );
@@ -138,12 +135,6 @@ export class UserService {
   ): Promise<Partial<UserEntity>> {
     const updateNewUser = new UserEntity();
     updateNewUser.name = updateUser.name;
-    updateNewUser.location = updateUser.location;
-    updateNewUser.birthDate = updateUser.birthDate;
-    updateNewUser.bio = updateUser.bio;
-    updateNewUser.instagramUrl = updateUser.instagramUrl;
-    updateNewUser.linkedinUrl = updateUser.linkedinUrl;
-    updateNewUser.facebookUrl = updateUser.facebookUrl;
 
     await this.userRepository.update(user_id, updateNewUser);
     const { password, ...rs } = await this.findUserById(user_id);
