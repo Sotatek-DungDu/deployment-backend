@@ -1,3 +1,4 @@
+import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
@@ -23,6 +24,7 @@ export const Modules = [
   ServeStaticModule.forRoot({
     rootPath: join(__dirname, '..', '..', 'public'),
   }),
+  ConfigModule.forRoot(),
   UserModule,
   AuthModule,
   ChildProcessModule,
