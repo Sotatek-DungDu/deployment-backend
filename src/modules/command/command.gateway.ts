@@ -7,8 +7,10 @@ import {
   OnGatewayDisconnect,
   WebSocketServer,
   MessageBody,
+  SubscribeMessage,
 } from '@nestjs/websockets';
 import { SocketWithAuth } from 'src/middleware/socket-middleware';
+import { ChildProcessService } from '../child-process/child-process.service';
 
 @WebSocketGateway({
   namespace: 'command',
@@ -17,6 +19,7 @@ export class CommandGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   private readonly logger = new Logger(CommandGateway.name);
+  constructor(private readonly childProcessService: ChildProcessService) {}
 
   @WebSocketServer() io: Namespace;
 
@@ -30,7 +33,7 @@ export class CommandGateway
     this.logger.log(`WS client with id: ${client.id}} connected to`);
     this.logger.debug(`Number of sockets connected: ${sockets.size}`);
 
-    this.io.emit('hello', `from ${client.id}`);
+    this.io.to(client.id).emit('command', `from ${client.id}`);
   }
 
   handleDisconnect(client: SocketWithAuth) {
@@ -38,5 +41,12 @@ export class CommandGateway
     this.logger.debug(`Socket connected with userID: ${client.user_id}"`);
     this.logger.log(`WS client with id: ${client.id}} connected to`);
     this.logger.debug(`Number of sockets connected: ${sockets.size}`);
+  }
+
+  @SubscribeMessage('command')
+  async handleEvent(client: Socket, command: string): Promise<any> {
+    // console.log('client', client.id);
+    const rs = await this.childProcessService.spawnChildProcess(command);
+    this.io.to(client.id).emit('command', rs);
   }
 }

@@ -18,17 +18,17 @@ export class ChildProcessService {
         code: null,
       };
       result.stdout.on('data', (data) => {
-        console.log('stdout', data.toString());
+        // console.log('stdout', data.toString());
         rs.returnValues = data.toString();
       });
 
       result.stderr.on('data', (data) => {
-        console.log('stderr', data.toString());
+        // console.log('stderr', data.toString());
         rs.errorValues = data.toString();
       });
 
       result.on('close', (code) => {
-        console.log('onclose', code);
+        // console.log('onclose', code);
         rs.code = code;
         if (code == 0) {
           resolve(rs);
