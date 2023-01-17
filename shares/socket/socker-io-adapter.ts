@@ -2,6 +2,8 @@ import { INestApplicationContext, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Server, ServerOptions, Socket } from 'socket.io';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 export class SocketIOAdapter extends IoAdapter {
   private readonly logger = new Logger(SocketIOAdapter.name);
@@ -11,7 +13,6 @@ export class SocketIOAdapter extends IoAdapter {
 
   createIOServer(port: number, options?: ServerOptions) {
     const clientPort = parseInt(process.env.SOCKETIO_CLIENT_PORT);
-
     const cors = {
       origin: [
         `http://localhost:${clientPort}`,

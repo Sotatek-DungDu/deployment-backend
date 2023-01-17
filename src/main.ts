@@ -1,5 +1,5 @@
-import { SocketIOAdapter } from './modules/command/socket/socker-io-adapter';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { SocketIOAdapter } from '../shares/socket/socker-io-adapter';
+import { ConfigModule } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -10,9 +10,11 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const clientPort = parseInt(process.env.SOCKETIO_CLIENT_PORT);
-
   app.enableCors({
-    origin: `http://localhost:${clientPort}`,
+    origin: [
+      `http://localhost:${clientPort}`,
+      new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
+    ],
   });
   app.useWebSocketAdapter(new SocketIOAdapter(app));
 

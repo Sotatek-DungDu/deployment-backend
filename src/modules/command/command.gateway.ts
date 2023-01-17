@@ -29,7 +29,6 @@ export class CommandGateway
     this.logger.debug(`Number of sockets connected: ${sockets.size}`);
 
     this.io.emit('hello', `from ${client.id}`);
-    throw new Error('Method not implemented.');
   }
 
   handleDisconnect(client: Socket) {
@@ -37,6 +36,5 @@ export class CommandGateway
 
     this.logger.log(`WS client with id: ${client.id}} connected to`);
     this.logger.debug(`Number of sockets connected: ${sockets.size}`);
-    throw new Error('Method not implemented.');
   }
 }
