@@ -5,7 +5,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 export class CommandService {
   constructor(private readonly childProcessService: ChildProcessService) {}
   async processCommmand(command: string): Promise<any> {
-    console.log('command', command);
     if (command === '')
       throw new HttpException(
         'Input not accepted',

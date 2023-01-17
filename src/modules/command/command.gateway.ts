@@ -6,7 +6,9 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   WebSocketServer,
+  MessageBody,
 } from '@nestjs/websockets';
+import { SocketWithAuth } from 'src/middleware/socket-middleware';
 
 @WebSocketGateway({
   namespace: 'command',
@@ -22,18 +24,18 @@ export class CommandGateway
     this.logger.log('Websocket Gateway initialized');
   }
 
-  handleConnection(client: Socket) {
+  handleConnection(client: SocketWithAuth) {
     const sockets = this.io.sockets;
-    console.log(client);
+    this.logger.debug(`Socket connected with userID: ${client.user_id}"`);
     this.logger.log(`WS client with id: ${client.id}} connected to`);
     this.logger.debug(`Number of sockets connected: ${sockets.size}`);
 
     this.io.emit('hello', `from ${client.id}`);
   }
 
-  handleDisconnect(client: Socket) {
+  handleDisconnect(client: SocketWithAuth) {
     const sockets = this.io.sockets;
-
+    this.logger.debug(`Socket connected with userID: ${client.user_id}"`);
     this.logger.log(`WS client with id: ${client.id}} connected to`);
     this.logger.debug(`Number of sockets connected: ${sockets.size}`);
   }
