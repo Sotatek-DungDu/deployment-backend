@@ -3,7 +3,7 @@ import { spawn } from 'child_process';
 
 @Injectable()
 export class ChildProcessService {
-  async spawnChildProcess(command): Promise<any> {
+  async spawnChildProcess({ command, onData, onError }): Promise<any> {
     return new Promise((resolve, reject) => {
       if (typeof command !== 'string') {
         reject(`command '${command}' is not string`);
@@ -11,24 +11,23 @@ export class ChildProcessService {
       const elements = command.split(/\s+/);
       const cmd = elements.shift();
       const result = spawn(cmd, elements, { shell: true });
-
+      console.log('piddd', result.pid);
       const rs = {
-        returnValues: null,
-        errorValues: null,
+        pid: result.pid,
         code: null,
       };
+
       result.stdout.on('data', (data) => {
-        // console.log('stdout', data.toString());
-        rs.returnValues = data.toString();
+        // rs.returnValues = data.toString();
+        if (onData) onData(data.toString(), rs);
       });
 
       result.stderr.on('data', (data) => {
-        // console.log('stderr', data.toString());
-        rs.errorValues = data.toString();
+        // rs.errorValues = data.toString();
+        if (onError) onError(data.toString(), rs);
       });
 
       result.on('close', (code) => {
-        // console.log('onclose', code);
         rs.code = code;
         if (code == 0) {
           resolve(rs);
@@ -40,4 +39,28 @@ export class ChildProcessService {
       return e;
     });
   }
+
+  async perform(command): Promise<any> {
+    const rs = await this.spawnChildProcess({
+      command,
+      onData,
+      onError,
+    });
+    return rs;
+  }
+
+  async kill(pid) {
+    console.log('kill', pid);
+    return process.kill(pid);
+  }
+}
+
+function onData(data, rs) {
+  rs.returnValues = data;
+  return rs;
+}
+
+function onError(e, rs) {
+  rs.errorValues = e;
+  return rs;
 }

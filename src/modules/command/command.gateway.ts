@@ -30,7 +30,7 @@ export class CommandGateway
   handleConnection(client: SocketWithAuth) {
     const sockets = this.io.sockets;
     this.logger.debug(`Socket connected with userID: ${client.user_id}"`);
-    this.logger.log(`WS client with id: ${client.id}} connected to`);
+    this.logger.log(`WS client with id: ${client.id}} connected`);
     this.logger.debug(`Number of sockets connected: ${sockets.size}`);
 
     this.io.to(client.id).emit('command', `from ${client.id}`);
@@ -39,14 +39,14 @@ export class CommandGateway
   handleDisconnect(client: SocketWithAuth) {
     const sockets = this.io.sockets;
     this.logger.debug(`Socket connected with userID: ${client.user_id}"`);
-    this.logger.log(`WS client with id: ${client.id}} connected to`);
+    this.logger.log(`WS client with id: ${client.id}} connected`);
     this.logger.debug(`Number of sockets connected: ${sockets.size}`);
   }
 
   @SubscribeMessage('command')
   async handleEvent(client: Socket, command: string): Promise<any> {
     // console.log('client', client.id);
-    const rs = await this.childProcessService.spawnChildProcess(command);
+    const rs = await this.childProcessService.perform(command);
     this.io.to(client.id).emit('command', rs);
   }
 }
