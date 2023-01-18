@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { spawn } from 'child_process';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const kill = require('tree-kill');
 
 @Injectable()
 export class ChildProcessService {
@@ -51,7 +53,7 @@ export class ChildProcessService {
 
   async kill(pid) {
     console.log('kill', pid);
-    return process.kill(pid);
+    return kill(pid);
   }
 }
 

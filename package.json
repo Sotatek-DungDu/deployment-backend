@@ -55,6 +55,7 @@
     "rxjs": "7",
     "socket.io": "4.5.4",
     "swagger-ui-express": "4.3.0",
+    "tree-kill": "1.2.2",
     "typeorm": "0.3.5",
     "uuid": "8.3.2"
   },
