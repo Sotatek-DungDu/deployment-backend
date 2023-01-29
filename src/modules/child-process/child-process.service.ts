@@ -1,11 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { spawn } from 'child_process';
+import { CommandGateway } from '../command/command.gateway';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const kill = require('tree-kill');
 
 @Injectable()
 export class ChildProcessService {
-  async spawnChildProcess({ command, onData, onError }): Promise<any> {
+  constructor(
+    @Inject(forwardRef(() => CommandGateway))
+    private readonly commandGateway: CommandGateway,
+  ) {}
+  async spawnChildProcess({ command }, client): Promise<any> {
     return new Promise((resolve, reject) => {
       if (typeof command !== 'string') {
         reject(`command '${command}' is not string`);
@@ -21,12 +26,12 @@ export class ChildProcessService {
 
       result.stdout.on('data', (data) => {
         // rs.returnValues = data.toString();
-        if (onData) onData(data.toString(), rs);
+        if (this.onData) this.onData(data.toString(), rs, client);
       });
 
       result.stderr.on('data', (data) => {
         // rs.errorValues = data.toString();
-        if (onError) onError(data.toString(), rs);
+        if (this.onError) this.onError(data.toString(), rs);
       });
 
       result.on('close', (code) => {
@@ -42,12 +47,24 @@ export class ChildProcessService {
     });
   }
 
-  async perform(command): Promise<any> {
-    const rs = await this.spawnChildProcess({
-      command,
-      onData,
-      onError,
-    });
+  async perform(command, client): Promise<any> {
+    const rs = await this.spawnChildProcess(
+      {
+        command,
+      },
+      client,
+    );
+    return rs;
+  }
+
+  async onData(data, rs, client) {
+    rs.returnValues = data;
+    this.commandGateway.returnSocketData(client, data);
+    return rs;
+  }
+
+  async onError(e, rs) {
+    rs.errorValues = e;
     return rs;
   }
 
@@ -55,14 +72,4 @@ export class ChildProcessService {
     console.log('kill', pid);
     return kill(pid);
   }
-}
-
-function onData(data, rs) {
-  rs.returnValues = data;
-  return rs;
-}
-
-function onError(e, rs) {
-  rs.errorValues = e;
-  return rs;
 }
