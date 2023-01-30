@@ -6,11 +6,12 @@ const kill = require('tree-kill');
 
 @Injectable()
 export class ChildProcessService {
+  // private commandGateway: CommandGateway;
   constructor(
     @Inject(forwardRef(() => CommandGateway))
     private readonly commandGateway: CommandGateway,
   ) {}
-  async spawnChildProcess({ command }, client): Promise<any> {
+  async spawnChildProcess(command, client): Promise<any> {
     return new Promise((resolve, reject) => {
       if (typeof command !== 'string') {
         reject(`command '${command}' is not string`);
@@ -31,7 +32,7 @@ export class ChildProcessService {
 
       result.stderr.on('data', (data) => {
         // rs.errorValues = data.toString();
-        if (this.onError) this.onError(data.toString(), rs);
+        if (this.onError) this.onError(data.toString(), rs, client);
       });
 
       result.on('close', (code) => {
@@ -48,23 +49,18 @@ export class ChildProcessService {
   }
 
   async perform(command, client): Promise<any> {
-    const rs = await this.spawnChildProcess(
-      {
-        command,
-      },
-      client,
-    );
-    return rs;
+    await this.spawnChildProcess(command, client);
   }
 
   async onData(data, rs, client) {
     rs.returnValues = data;
-    this.commandGateway.returnSocketData(client, data);
+    this.commandGateway.returnSocketData(client, rs);
     return rs;
   }
 
-  async onError(e, rs) {
+  async onError(e, rs, client) {
     rs.errorValues = e;
+    this.commandGateway.returnSocketData(client, rs);
     return rs;
   }
 
