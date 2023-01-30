@@ -4,7 +4,7 @@ import { PlainBody } from 'shares/decorators/plainbody.decorator';
 @Controller()
 export class CommandController {
   constructor(private readonly commandService: CommandService) {}
-  @Get('test')
+  @Get('command')
   async processCommmand(@PlainBody() command: string): Promise<any> {
     return await this.commandService.processCommmand(command);
   }

@@ -1,3 +1,4 @@
+import { CommandEntity } from './model/entities/command.entity';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,6 +8,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ChildProcessModule } from './modules/child-process/child-process.module';
 import { CommandModule } from './modules/command/command.module';
 import { UserModule } from './modules/user/user.module';
+import { ProjectEntity } from './model/entities/project.entity';
+import { ProjectModule } from './modules/project/project.module';
 
 export const Modules = [
   TypeOrmModule.forRootAsync({
@@ -17,7 +20,7 @@ export const Modules = [
       username: process.env.TYPEORM_USERNAME,
       password: process.env.TYPEORM_PASSWORD,
       database: process.env.TYPEORM_DATABASE,
-      entities: [UserEntity],
+      entities: [UserEntity, ProjectEntity, CommandEntity],
       synchronize: true,
     }),
   }),
@@ -29,4 +32,5 @@ export const Modules = [
   AuthModule,
   ChildProcessModule,
   CommandModule,
+  ProjectModule,
 ];
