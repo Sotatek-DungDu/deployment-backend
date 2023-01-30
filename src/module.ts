@@ -10,6 +10,7 @@ import { CommandModule } from './modules/command/command.module';
 import { UserModule } from './modules/user/user.module';
 import { ProjectEntity } from './model/entities/project.entity';
 import { ProjectModule } from './modules/project/project.module';
+import { PermissionsEntity } from './model/entities/permissions.entity';
 
 export const Modules = [
   TypeOrmModule.forRootAsync({
@@ -20,7 +21,7 @@ export const Modules = [
       username: process.env.TYPEORM_USERNAME,
       password: process.env.TYPEORM_PASSWORD,
       database: process.env.TYPEORM_DATABASE,
-      entities: [UserEntity, ProjectEntity, CommandEntity],
+      entities: [UserEntity, ProjectEntity, CommandEntity, PermissionsEntity],
       synchronize: true,
     }),
   }),

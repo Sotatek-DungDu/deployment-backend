@@ -1,8 +1,10 @@
+import { UserEntity } from 'src/model/entities/user.entity';
 import { CommandEntity } from './command.entity';
 import {
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -16,6 +18,9 @@ export class ProjectEntity {
 
   @Column({ nullable: false })
   name: string;
+
+  @Column({ nullable: false })
+  src: string;
 
   @OneToOne(() => CommandEntity)
   @JoinColumn({ name: ' command' })
