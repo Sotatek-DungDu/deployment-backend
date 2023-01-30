@@ -9,7 +9,7 @@ export class CommandController {
     return await this.commandService.processCommmand(command);
   }
 
-  @Get('kill')
+  @Get('command/kill')
   async killProcess(@PlainBody() pid: number): Promise<any> {
     return await this.commandService.killProcess(pid);
   }

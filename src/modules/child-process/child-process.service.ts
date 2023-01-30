@@ -22,7 +22,6 @@ export class ChildProcessService {
       console.log('piddd', result.pid);
       const rs = {
         pid: result.pid,
-        code: null,
       };
 
       result.stdout.on('data', (data) => {
@@ -36,7 +35,6 @@ export class ChildProcessService {
       });
 
       result.on('close', (code) => {
-        rs.code = code;
         if (code == 0) {
           resolve(rs);
         } else {
@@ -54,18 +52,19 @@ export class ChildProcessService {
 
   async onData(data, rs, client) {
     rs.returnValues = data;
-    this.commandGateway.returnSocketData(client, rs);
+    if (client) this.commandGateway.returnSocketData(client, rs);
     return rs;
   }
 
   async onError(e, rs, client) {
     rs.errorValues = e;
-    this.commandGateway.returnSocketData(client, rs);
+    if (client) this.commandGateway.returnSocketData(client, rs);
     return rs;
   }
 
   async kill(pid) {
-    console.log('kill', pid);
-    return kill(pid);
+    // console.log('kill', pid);
+    await kill(pid);
+    return `killed ${pid}`;
   }
 }

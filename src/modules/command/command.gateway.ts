@@ -1,5 +1,5 @@
 import { Namespace, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
+import { forwardRef, Inject, Logger } from '@nestjs/common';
 import {
   OnGatewayInit,
   WebSocketGateway,
@@ -19,7 +19,10 @@ export class CommandGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   private readonly logger = new Logger(CommandGateway.name);
-  constructor(private readonly childProcessService: ChildProcessService) {}
+  constructor(
+    @Inject(forwardRef(() => ChildProcessService))
+    private readonly childProcessService: ChildProcessService,
+  ) {}
 
   @WebSocketServer() io: Namespace;
 

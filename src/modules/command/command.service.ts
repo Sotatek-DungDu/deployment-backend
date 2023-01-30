@@ -10,7 +10,7 @@ export class CommandService {
         'Input not accepted',
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
-    return await this.childProcessService.perform(command, '');
+    return await this.childProcessService.spawnChildProcess(command, null);
   }
 
   async killProcess(pid: number): Promise<any> {
