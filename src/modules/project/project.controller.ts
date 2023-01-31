@@ -16,11 +16,6 @@ import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
-  @Get('project')
-  async getall(): Promise<ProjectEntity[]> {
-    return await this.projectService.getAll();
-  }
-
   @Get('project/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)

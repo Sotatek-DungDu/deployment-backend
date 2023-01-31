@@ -12,14 +12,6 @@ export class ProjectService {
     private readonly permissionsService: PermissionsService,
   ) {}
 
-  async getAll(): Promise<ProjectEntity[]> {
-    return await this.projectRepository.find({
-      relations: {
-        command: true,
-      },
-    });
-  }
-
   async getCommandByProjectId(
     project_id: number,
     user_id: number,
