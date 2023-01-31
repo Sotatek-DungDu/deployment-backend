@@ -11,6 +11,7 @@ import { UserModule } from './modules/user/user.module';
 import { ProjectEntity } from './model/entities/project.entity';
 import { ProjectModule } from './modules/project/project.module';
 import { PermissionsEntity } from './model/entities/permissions.entity';
+import { PermissionsModule } from './modules/auth/permission/permissions.module';
 
 export const Modules = [
   TypeOrmModule.forRootAsync({
@@ -34,4 +35,5 @@ export const Modules = [
   ChildProcessModule,
   CommandModule,
   ProjectModule,
+  PermissionsModule,
 ];

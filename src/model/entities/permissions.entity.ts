@@ -1,5 +1,5 @@
 import { ProjectEntity } from './project.entity';
-import { Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { UserEntity } from './user.entity';
 
 @Entity({
@@ -7,13 +7,13 @@ import { UserEntity } from './user.entity';
 })
 export class PermissionsEntity {
   @PrimaryGeneratedColumn()
-  permissions_id: number;
+  permission_id: number;
 
-  @OneToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity)
   @JoinColumn({ name: ' user' })
   user: UserEntity;
 
-  @OneToOne(() => ProjectEntity)
+  @ManyToOne(() => ProjectEntity)
   @JoinColumn({ name: ' project' })
   project: ProjectEntity;
 }
