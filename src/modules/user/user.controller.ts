@@ -88,4 +88,13 @@ export class UserController {
   ) {
     return this.userService.uploadMediaUser(email, profileImg.path);
   }
+
+  @Get('user')
+  @ApiBearerAuth()
+  @hasRoles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOkResponse({ description: 'Get All User' })
+  async getAllUser(): Promise<any> {
+    return await this.userService.getAllUser();
+  }
 }

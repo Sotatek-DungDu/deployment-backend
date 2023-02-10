@@ -18,10 +18,11 @@ export class ProjectService {
     project_id: string,
     email: string,
   ): Promise<ProjectDocument> {
+    const user = await this.userService.findUserByEmail(email);
     const project = await this.projectModel
       .findOne({
         _id: project_id,
-        email: email,
+        permissions: { $in: user._id },
       })
       .select('data');
     if (!project) throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
@@ -70,13 +71,17 @@ export class ProjectService {
     email: string,
     action: InputAction,
   ): Promise<any> {
+    const user = await this.userService.findUserByEmail(email);
     const data = await this.projectModel
       .findOne({
         _id: project_id,
-        email: email,
-        'Values.data.action': action.action,
+        permissions: { $in: user._id },
+        'data.action': action.action,
       })
       .select('data.command');
+    if (!data) {
+      throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
     return data.data[0].command;
   }
 

@@ -146,4 +146,8 @@ export class UserService {
       { profileImg: profileImg },
     );
   }
+
+  async getAllUser(): Promise<UserDocument[]> {
+    return await this.userModel.find();
+  }
 }
