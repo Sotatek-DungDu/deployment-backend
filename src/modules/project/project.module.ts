@@ -1,14 +1,13 @@
-import { ProjectEntity } from './../../model/entities/project.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { ProjectSchema } from './../../model/project.schema';
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
 import { ProjectController } from './project.controller';
 import { ProjectService } from './project.service';
-import { PermissionsEntity } from 'src/model/entities/permissions.entity';
-import { PermissionsModule } from '../auth/permission/permissions.module';
+import { UserModule } from '../user/user.module';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ProjectEntity, PermissionsEntity]),
-    PermissionsModule,
+    MongooseModule.forFeature([{ name: 'Project', schema: ProjectSchema }]),
+    UserModule,
   ],
   controllers: [ProjectController],
   providers: [ProjectService],

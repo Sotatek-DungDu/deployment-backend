@@ -5,10 +5,7 @@ import {
   CACHE_MANAGER,
   Inject,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { createHash } from 'crypto';
-import { UserEntity } from 'src/model/entities/user.entity';
-import { Repository } from 'typeorm';
 import { AuthService } from '../auth/auth.service';
 import { RefreshAccessTokenDto } from '../auth/dto/refresh-access-token.dto';
 import { ResponseLogin } from '../auth/dto/response-login.dto';
@@ -16,11 +13,13 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { loginDto } from './dto/login.dto';
 import { Cache } from 'cache-manager';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User, UserDocument } from 'src/model/user.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
+    @InjectModel('User') private readonly userModel: Model<UserDocument>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly authService: AuthService,
   ) {}
@@ -30,16 +29,17 @@ export class UserService {
       throw new HttpException('Email already exists', HttpStatus.CONFLICT);
     }
 
-    const newUser = new UserEntity();
+    const newUser = new User();
 
     newUser.email = user.email;
     newUser.password = await this.authService.hashPassword(user.password);
-
-    await this.userRepository.save(newUser);
+    newUser.role = 'DEV';
+    await new this.userModel(newUser).save();
     const { password, ...data } = newUser;
 
     const accessToken = await this.authService.generateAccessToken({
-      user_id: newUser.user_id,
+      email: newUser.email,
+      role: newUser.role,
     });
 
     const refreshToken = await this.authService.generateRefreshToken(
@@ -50,7 +50,7 @@ export class UserService {
   }
 
   async login(loginDTO: loginDto): Promise<ResponseLogin> {
-    const user: UserEntity = await this.findUserByEmail(loginDTO.email);
+    const user: UserDocument = await this.findUserByEmail(loginDTO.email);
 
     if (
       (await this.authService.comparePassword(
@@ -62,7 +62,8 @@ export class UserService {
     }
 
     const accessToken = await this.authService.generateAccessToken({
-      user_id: user.user_id,
+      email: user.email,
+      role: user.role,
     });
     const refreshToken = await this.authService.generateRefreshToken(
       accessToken.accessToken,
@@ -104,25 +105,22 @@ export class UserService {
   }
 
   async checkUserEmailExisted(email: string): Promise<boolean> {
-    const user = await this.userRepository.findOne({
-      where: {
-        email: email,
-      },
-      select: ['email'],
+    const user = await this.userModel.findOne({
+      email: email,
     });
     return !!user;
   }
 
-  async findUserByEmail(email: string): Promise<UserEntity> {
-    const user = await this.userRepository.findOneBy({ email });
+  async findUserByEmail(email: string): Promise<UserDocument> {
+    const user = await this.userModel.findOne({ email: email });
     if (!user) {
       throw new HttpException('Account Not Found', HttpStatus.BAD_REQUEST);
     }
     return user;
   }
 
-  async findUserById(user_id: number): Promise<UserEntity> {
-    const user = await this.userRepository.findOneBy({ user_id });
+  async findUserById(user_id: string): Promise<UserDocument> {
+    const user = await this.userModel.findOne({ _id: user_id });
     if (!user) {
       throw new HttpException('Account Not Found', HttpStatus.BAD_REQUEST);
     }
@@ -130,19 +128,22 @@ export class UserService {
   }
 
   async UpdateUser(
-    user_id: number,
+    user_id: string,
     updateUser: UpdateUserDto,
-  ): Promise<Partial<UserEntity>> {
-    const updateNewUser = new UserEntity();
+  ): Promise<Partial<UserDocument>> {
+    const updateNewUser = new User();
     updateNewUser.name = updateUser.name;
 
-    await this.userRepository.update(user_id, updateNewUser);
+    await this.userModel.updateOne({ _id: user_id }, updateNewUser);
     const { password, ...rs } = await this.findUserById(user_id);
 
     return rs;
   }
 
-  async uploadMediaUser(user_id: number, profileImg: string) {
-    return this.userRepository.update(user_id, { profileImg: profileImg });
+  async uploadMediaUser(email: string, profileImg: string) {
+    return this.userModel.updateOne(
+      { email: email },
+      { profileImg: profileImg },
+    );
   }
 }

@@ -1,3 +1,4 @@
+import { UserDocument, UserRole } from './../../model/user.schema';
 import {
   Body,
   Controller,
@@ -14,10 +15,9 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserID } from 'shares/decorators/get-user-id.decorator';
+import { UserEmail } from 'shares/decorators/get-user-email.decorator';
 import { hasRoles } from 'shares/decorators/role.decorator';
 import { DecoratorUploadUserMedia } from 'shares/decorators/user-media.decorator';
-import { UserEntity } from 'src/model/entities/user.entity';
 import { UserService } from 'src/modules/user/user.service';
 import { RefreshAccessTokenDto } from '../auth/dto/refresh-access-token.dto';
 import { ResponseLogin } from '../auth/dto/response-login.dto';
@@ -34,11 +34,12 @@ export class UserController {
 
   @Post('auth/signup')
   @ApiOkResponse({ description: 'Signup' })
-  async signup(@Body() user: CreateUserDto): Promise<UserEntity> {
+  async signup(@Body() user: CreateUserDto): Promise<UserDocument> {
     return this.userService.createUser(user);
   }
 
   @Post('auth/login')
+  @ApiOkResponse({ description: 'Login' })
   async login(@Body() loginDTO: loginDto): Promise<ResponseLogin> {
     return this.userService.login(loginDTO);
   }
@@ -47,6 +48,7 @@ export class UserController {
   @ApiBody({
     type: RefreshAccessTokenDto,
   })
+  @ApiOkResponse({ description: 'Refresh Token' })
   async refreshAccessToken(
     @Body() refreshAccessTokenDto: RefreshAccessTokenDto,
   ): Promise<ResponseLogin> {
@@ -56,17 +58,21 @@ export class UserController {
   @Get('auth/current')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  async currentUser(@UserID() user_id: number): Promise<Partial<UserEntity>> {
-    return await this.userService.findUserById(user_id);
+  @ApiOkResponse({ description: 'Get Current Information' })
+  async currentUser(
+    @UserEmail() email: string,
+  ): Promise<Partial<UserDocument>> {
+    return await this.userService.findUserByEmail(email);
   }
 
   @Put('user/update')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ description: 'Update Current Information' })
   async updateUser(
-    @UserID() user_id: number,
+    @UserEmail() user_id: string,
     @Body() updateUser: UpdateUserDto,
-  ): Promise<Partial<UserEntity>> {
+  ): Promise<Partial<UserDocument>> {
     return await this.userService.UpdateUser(user_id, updateUser);
   }
 
@@ -75,10 +81,11 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @ApiConsumes('multipart/form-data')
   @DecoratorUploadUserMedia()
+  @ApiOkResponse({ description: 'Update Media Current User' })
   async uploadMediaUser(
-    @UserID() user_id: number,
+    @UserEmail() email: string,
     @UploadedFile() profileImg: Express.Multer.File,
   ) {
-    return this.userService.uploadMediaUser(user_id, profileImg.path);
+    return this.userService.uploadMediaUser(email, profileImg.path);
   }
 }

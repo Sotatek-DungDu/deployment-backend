@@ -1,34 +1,90 @@
-import { Get, HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ProjectEntity } from 'src/model/entities/project.entity';
-import { Repository } from 'typeorm';
-import { PermissionsService } from '../auth/permission/permissions.service';
-
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Project, ProjectDocument } from 'src/model/project.schema';
+import { UserService } from '../user/user.service';
+import { CreateCommand } from './dto/create-command.dto';
+import { CreateProject } from './dto/create-new-project.dto';
+import { InputAction } from './dto/input-action.dto';
 @Injectable()
 export class ProjectService {
   constructor(
-    @InjectRepository(ProjectEntity)
-    private readonly projectRepository: Repository<ProjectEntity>,
-    private readonly permissionsService: PermissionsService,
+    @InjectModel('Project')
+    private readonly projectModel: Model<ProjectDocument>,
+    private readonly userService: UserService,
   ) {}
 
   async getCommandByProjectId(
-    project_id: number,
-    user_id: number,
-  ): Promise<any> {
-    const project = await this.projectRepository.findOne({
-      where: { project_id: project_id },
-      relations: { command: true },
-    });
+    project_id: string,
+    email: string,
+  ): Promise<ProjectDocument> {
+    const project = await this.projectModel
+      .findOne({
+        _id: project_id,
+        email: email,
+      })
+      .select('data');
     if (!project) throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
+    return project;
+  }
 
-    if (
-      await this.permissionsService.getPermisionByProjectIdAndUserId(
-        project.project_id,
-        user_id,
-      )
-    ) {
-      return project;
-    } else throw new HttpException('NOT_ACCEPTABLE', HttpStatus.NOT_ACCEPTABLE);
+  async getProject(email: string): Promise<Project[]> {
+    const user = await this.userService.findUserByEmail(email);
+    const project = await this.projectModel.find({
+      permissions: { $in: user._id },
+    });
+    if (!project) {
+      throw new HttpException('NOT_FOUND', HttpStatus.NO_CONTENT);
+    }
+    return project;
+  }
+
+  async createProject(email: string, project: CreateProject): Promise<any> {
+    const regex = new RegExp('^(/[^/ ]*)+/?$');
+    if (regex.test(project.src) == false) {
+      throw new HttpException('WRONG SOURCE FORMAT', HttpStatus.NOT_ACCEPTABLE);
+    }
+    const user = await this.userService.findUserByEmail(email);
+    const newProject = {
+      name: project.name,
+      src: project.src,
+      permissions: user._id,
+    };
+    return await new this.projectModel(newProject).save();
+  }
+
+  async createCommand(
+    project_id: string,
+    command: CreateCommand,
+  ): Promise<any> {
+    return await this.projectModel.update(
+      { _id: project_id },
+      {
+        $push: { data: command },
+      },
+    );
+  }
+
+  async getContentCommand(
+    project_id: string,
+    email: string,
+    action: InputAction,
+  ): Promise<any> {
+    const data = await this.projectModel
+      .findOne({
+        _id: project_id,
+        email: email,
+        'Values.data.action': action.action,
+      })
+      .select('data.command');
+    return data.data[0].command;
+  }
+
+  async addPermissions(project_id: string, email: string): Promise<any> {
+    const user = await this.userService.findUserByEmail(email);
+    return await this.projectModel.updateOne(
+      { _id: project_id },
+      { $push: { permissions: user._id } },
+    );
   }
 }

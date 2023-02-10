@@ -13,7 +13,7 @@ export const createTokenMiddleware =
 
     try {
       const payload = jwtService.verify(token);
-      socket.user_id = payload.user_id;
+      socket.email = payload.email;
       next();
     } catch {
       next(new HttpException('UNAUTHORIZED', HttpStatus.BAD_REQUEST));
@@ -21,6 +21,7 @@ export const createTokenMiddleware =
   };
 
 type AuthPayload = {
-  user_id: number;
+  email: string;
+  role: string;
 };
 export type SocketWithAuth = Socket & AuthPayload;

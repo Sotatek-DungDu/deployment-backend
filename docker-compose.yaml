@@ -1,19 +1,21 @@
 version: '3.1'
 services:
-  db:
-    image: mysql:8.0.25
-    container_name: deployment-mysql
-    command: --default-authentication-plugin=mysql_native_password
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 'root'
-      MYSQL_DATABASE: deployment
-      LANG: C.UTF-8
-    ports:
-      - "3307:3306"
 
   redis:
     image: 'redis:6-alpine'
     container_name: deployment-redis
     ports:
       - "127.0.0.1:6382:6379"
+
+  mongodb:
+    image: mongo
+    container_name: deployment-mongodb
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+    command: --quiet

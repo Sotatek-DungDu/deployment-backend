@@ -11,11 +11,12 @@ export class ChildProcessService {
     @Inject(forwardRef(() => CommandGateway))
     private readonly commandGateway: CommandGateway,
   ) {}
-  async spawnChildProcess(command, client): Promise<any> {
+  async spawnChildProcess(command, client, src): Promise<any> {
     return new Promise((resolve, reject) => {
       if (typeof command !== 'string') {
         reject(`command '${command}' is not string`);
       }
+      command = `cd ${src} && ${command}`;
       const elements = command.split(/\s+/);
       const cmd = elements.shift();
       const result = spawn(cmd, elements, { shell: true });
@@ -47,7 +48,7 @@ export class ChildProcessService {
   }
 
   async perform(command, client): Promise<any> {
-    await this.spawnChildProcess(command, client);
+    await this.spawnChildProcess(command, client, '');
   }
 
   async onData(data, rs, client) {

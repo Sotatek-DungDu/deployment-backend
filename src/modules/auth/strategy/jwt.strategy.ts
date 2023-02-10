@@ -1,8 +1,8 @@
+import { UserDocument } from './../../../model/user.schema';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { JwtPayload } from './jwt.payload';
-import { UserEntity } from 'src/model/entities/user.entity';
 import { UserService } from 'src/modules/user/user.service';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -15,8 +15,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: process.env.JWT_KEY,
     });
   }
-  async validate(payload: JwtPayload): Promise<UserEntity> {
-    const user = await this.userService.findUserById(payload.user_id);
+  async validate(payload: JwtPayload): Promise<UserDocument> {
+    const user = await this.userService.findUserByEmail(payload.email);
     if (!user) {
       throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED);
     }
