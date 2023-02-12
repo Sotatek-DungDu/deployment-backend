@@ -4,6 +4,7 @@ import { Server, ServerOptions } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { createTokenMiddleware } from 'src/middleware/socket-middleware';
 import * as dotenv from 'dotenv';
+import { adminSocketMiddleWare } from 'src/middleware/admin-socket-middleware';
 dotenv.config();
 
 export class SocketIOAdapter extends IoAdapter {
@@ -33,7 +34,7 @@ export class SocketIOAdapter extends IoAdapter {
     const jwtService = this.app.get(JwtService);
     const server: Server = super.createIOServer(port, optionsWithCORS);
     server.of('command').use(createTokenMiddleware(jwtService, this.logger));
-
+    server.of('admin').use(adminSocketMiddleWare(jwtService, this.logger));
     return server;
 
     // return super.createIOServer(port, optionsWithCORS);
