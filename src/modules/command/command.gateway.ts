@@ -1,4 +1,3 @@
-import { ProjectService } from './../project/project.service';
 import { Namespace, Socket } from 'socket.io';
 import { forwardRef, Inject, Logger } from '@nestjs/common';
 import {
@@ -33,7 +32,9 @@ export class CommandGateway
 
   handleConnection(client: SocketWithAuth) {
     const sockets = this.io.sockets;
-    this.logger.debug(`Socket connected with UserEmail: ${client.email}"`);
+    this.logger.debug(
+      `Socket connected with UserEmail: ${client.email} role: ${client.role}`,
+    );
     this.logger.log(`WS client with id: ${client.id}} connected`);
     this.logger.debug(`Number of sockets connected: ${sockets.size}`);
 
@@ -42,7 +43,9 @@ export class CommandGateway
 
   handleDisconnect(client: SocketWithAuth) {
     const sockets = this.io.sockets;
-    this.logger.debug(`Socket disconnected with UserEmail: ${client.email}"`);
+    this.logger.debug(
+      `Socket disconnected with UserEmail: ${client.email} role: ${client.role}`,
+    );
     this.logger.log(`WS client with id: ${client.id}} disconnected`);
     this.logger.debug(`Number of sockets connected: ${sockets.size}`);
   }

@@ -14,6 +14,7 @@ export const createTokenMiddleware =
     try {
       const payload = jwtService.verify(token);
       socket.email = payload.email;
+      socket.role = payload.role;
       next();
     } catch {
       next(new HttpException('UNAUTHORIZED', HttpStatus.BAD_REQUEST));
