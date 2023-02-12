@@ -1,3 +1,4 @@
+import { ProjectService } from './../project/project.service';
 import { Namespace, Socket } from 'socket.io';
 import { forwardRef, Inject, Logger } from '@nestjs/common';
 import {

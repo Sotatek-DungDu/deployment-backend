@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Project, ProjectDocument } from 'src/model/project.schema';
+import { ChildProcessService } from '../child-process/child-process.service';
 import { UserService } from '../user/user.service';
 import { CreateCommand } from './dto/create-command.dto';
 import { CreateProject } from './dto/create-new-project.dto';
@@ -12,6 +13,7 @@ export class ProjectService {
     @InjectModel('Project')
     private readonly projectModel: Model<ProjectDocument>,
     private readonly userService: UserService,
+    private readonly childProcessService: ChildProcessService,
   ) {}
 
   async getCommandByProjectId(
@@ -66,7 +68,7 @@ export class ProjectService {
     );
   }
 
-  async getContentCommand(
+  async getCommandByAction(
     project_id: string,
     email: string,
     action: InputAction,
@@ -78,11 +80,25 @@ export class ProjectService {
         permissions: { $in: user._id },
         'data.action': action.action,
       })
-      .select('data.command');
+      .select('data.command src');
     if (!data) {
       throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
     }
-    return data.data[0].command;
+    console.log('data', data);
+    return { src: data.src, command: data.data[0].command };
+  }
+
+  async performAction(
+    project_id: string,
+    email: string,
+    action: InputAction,
+  ): Promise<any> {
+    const { src, command } = await this.getCommandByAction(
+      project_id,
+      email,
+      action,
+    );
+    return await this.childProcessService.spawnChildProcess(command, null, src);
   }
 
   async addPermissions(project_id: string, email: string): Promise<any> {
