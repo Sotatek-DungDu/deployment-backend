@@ -22,7 +22,7 @@ export const Modules = [
   ConfigModule.forRoot(),
   UserModule,
   AuthModule,
-  ChildProcessModule,
   CommandModule,
   ProjectModule,
+  ChildProcessModule,
 ];

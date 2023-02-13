@@ -6,13 +6,16 @@ import { ChildProcessService } from '../child-process/child-process.service';
 import { UserService } from '../user/user.service';
 import { CreateCommand } from './dto/create-command.dto';
 import { CreateProject } from './dto/create-new-project.dto';
-import { InputAction } from './dto/input-action.dto';
+import { forwardRef, Inject } from '@nestjs/common';
+import { Socket } from 'socket.io';
+
 @Injectable()
 export class ProjectService {
   constructor(
     @InjectModel('Project')
     private readonly projectModel: Model<ProjectDocument>,
     private readonly userService: UserService,
+    @Inject(forwardRef(() => ChildProcessService))
     private readonly childProcessService: ChildProcessService,
   ) {}
 
@@ -71,34 +74,38 @@ export class ProjectService {
   async getCommandByAction(
     project_id: string,
     email: string,
-    action: InputAction,
+    action: any,
   ): Promise<any> {
     const user = await this.userService.findUserByEmail(email);
     const data = await this.projectModel
       .findOne({
         _id: project_id,
         permissions: { $in: user._id },
-        'data.action': action.action,
+        'data.action': action,
       })
       .select('data.command src');
     if (!data) {
       throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
     }
-    console.log('data', data);
     return { src: data.src, command: data.data[0].command };
   }
 
   async performAction(
     project_id: string,
     email: string,
-    action: InputAction,
+    action: any,
+    client: Socket,
   ): Promise<any> {
     const { src, command } = await this.getCommandByAction(
       project_id,
       email,
       action,
     );
-    return await this.childProcessService.spawnChildProcess(command, null, src);
+    return await this.childProcessService.spawnChildProcess(
+      command,
+      client,
+      src,
+    );
   }
 
   async addPermissions(project_id: string, email: string): Promise<any> {

@@ -64,17 +64,17 @@ export class ProjectController {
     return await this.projectService.createCommand(project_id, command);
   }
 
-  @Post('project/action/:id')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOkResponse({ description: 'Perform Action' })
-  async getContentCommand(
-    @Param('id') project_id: string,
-    @UserEmail() email: string,
-    @Body() action: InputAction,
-  ): Promise<any> {
-    return await this.projectService.performAction(project_id, email, action);
-  }
+  // @Post('project/action/:id')
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
+  // @ApiOkResponse({ description: 'Perform Action' })
+  // async getContentCommand(
+  //   @Param('id') project_id: string,
+  //   @UserEmail() email: string,
+  //   @Body() action: InputAction,
+  // ): Promise<any> {
+  //   return await this.projectService.performAction(project_id, email, action);
+  // }
 
   @Post('project/permissions/:id')
   @ApiBearerAuth()
