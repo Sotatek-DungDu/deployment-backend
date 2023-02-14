@@ -1,13 +1,13 @@
 import { CommandService } from './command.service';
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { PlainBody } from 'shares/decorators/plainbody.decorator';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DecoratorText } from 'shares/decorators/plaintextswagger.decorator';
 import { InputCommand } from './dto/input-command.dto';
 @Controller()
 @ApiTags('Command manage')
 export class CommandController {
-  constructor(private readonly commandService: CommandService) {}
+  constructor(private readonly commandService: CommandService) { }
 
   // @Post('command')
   // async processCommmand(@Body() command: InputCommand): Promise<any> {
@@ -16,6 +16,7 @@ export class CommandController {
 
   @Post('command/kill')
   @DecoratorText()
+  @ApiOperation({ summary: 'Kill Process' })
   async killProcess(@PlainBody() pid: number): Promise<any> {
     return await this.commandService.killProcess(pid);
   }

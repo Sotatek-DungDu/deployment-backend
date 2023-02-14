@@ -12,7 +12,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
-  ApiOkResponse,
+  ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { UserEmail } from 'shares/decorators/get-user-email.decorator';
@@ -30,16 +30,16 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @Controller()
 @ApiTags('User manage')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Post('auth/signup')
-  @ApiOkResponse({ description: 'Signup' })
+  @ApiOperation({ summary: 'Signup' })
   async signup(@Body() user: CreateUserDto): Promise<UserDocument> {
     return this.userService.createUser(user);
   }
 
   @Post('auth/login')
-  @ApiOkResponse({ description: 'Login' })
+  @ApiOperation({ summary: 'Login' })
   async login(@Body() loginDTO: loginDto): Promise<ResponseLogin> {
     return this.userService.login(loginDTO);
   }
@@ -48,7 +48,7 @@ export class UserController {
   @ApiBody({
     type: RefreshAccessTokenDto,
   })
-  @ApiOkResponse({ description: 'Refresh Token' })
+  @ApiOperation({ summary: 'Refresh Token' })
   async refreshAccessToken(
     @Body() refreshAccessTokenDto: RefreshAccessTokenDto,
   ): Promise<ResponseLogin> {
@@ -58,7 +58,7 @@ export class UserController {
   @Get('auth/current')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOkResponse({ description: 'Get Current Information' })
+  @ApiOperation({ summary: 'Get Current Information' })
   async currentUser(
     @UserEmail() email: string,
   ): Promise<Partial<UserDocument>> {
@@ -68,7 +68,7 @@ export class UserController {
   @Put('user/update')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOkResponse({ description: 'Update Current Information' })
+  @ApiOperation({ summary: 'Update Current Information' })
   async updateUser(
     @UserEmail() user_id: string,
     @Body() updateUser: UpdateUserDto,
@@ -81,7 +81,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @ApiConsumes('multipart/form-data')
   @DecoratorUploadUserMedia()
-  @ApiOkResponse({ description: 'Update Media Current User' })
+  @ApiOperation({ summary: 'Update Media Current User' })
   async uploadMediaUser(
     @UserEmail() email: string,
     @UploadedFile() profileImg: Express.Multer.File,
@@ -93,7 +93,7 @@ export class UserController {
   @ApiBearerAuth()
   @hasRoles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOkResponse({ description: 'Admin Get All User' })
+  @ApiOperation({ summary: 'Admin Get All User' })
   async getAllUser(): Promise<any> {
     return await this.userService.getAllUser();
   }

@@ -3,7 +3,7 @@ import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiOkResponse,
+  ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { UserEmail } from 'shares/decorators/get-user-email.decorator';
@@ -21,12 +21,12 @@ import { PlainBody } from 'shares/decorators/plainbody.decorator';
 @Controller()
 @ApiTags('Project manage')
 export class ProjectController {
-  constructor(private readonly projectService: ProjectService) {}
+  constructor(private readonly projectService: ProjectService) { }
 
   @Get('project/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOkResponse({ description: 'Get Data Project By Id' })
+  @ApiOperation({ summary: 'Get Data Project By Id' })
   async getCommandByProjectId(
     @Param('id') project_id: string,
     @UserEmail() email: string,
@@ -37,7 +37,7 @@ export class ProjectController {
   @Get('project')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOkResponse({ description: 'Get Data Project' })
+  @ApiOperation({ summary: 'Get Data Project' })
   async getProject(@UserEmail() email: string): Promise<Project[]> {
     return await this.projectService.getProjectByPermission(email);
   }
@@ -46,7 +46,7 @@ export class ProjectController {
   @ApiBearerAuth()
   @hasRoles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOkResponse({ description: 'Admin Get Data All Project' })
+  @ApiOperation({ summary: 'Admin Get Data All Project' })
   async adminGetProject(): Promise<Project[]> {
     return await this.projectService.getAllProject();
   }
@@ -55,7 +55,7 @@ export class ProjectController {
   @ApiBearerAuth()
   @hasRoles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOkResponse({ description: 'Admin Create Project' })
+  @ApiOperation({ summary: 'Admin Create Project' })
   async createProject(
     @UserEmail() email: string,
     @Body() project: CreateProject,
@@ -67,7 +67,7 @@ export class ProjectController {
   @ApiBearerAuth()
   @hasRoles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOkResponse({ description: 'Admin Create Command By Id' })
+  @ApiOperation({ summary: 'Admin Create Command By Id' })
   async createCommand(
     @Param('id') project_id: string,
     @Body() command: CreateCommand,
@@ -78,7 +78,7 @@ export class ProjectController {
   // @Post('project/action/:id')
   // @ApiBearerAuth()
   // @UseGuards(JwtAuthGuard)
-  // @ApiOkResponse({ description: 'Perform Action' })
+  // @ApiOperation({ summary: 'Perform Action' })
   // async getContentCommand(
   //   @Param('id') project_id: string,
   //   @UserEmail() email: string,
@@ -92,7 +92,7 @@ export class ProjectController {
   @hasRoles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @DecoratorText()
-  @ApiOkResponse({ description: 'Admin Add Project Permissions' })
+  @ApiOperation({ summary: 'Admin Add Project Permissions' })
   async addPermissions(
     @Param('id') project_id: string,
     @PlainBody() email: string,
