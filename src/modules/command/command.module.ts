@@ -10,7 +10,7 @@ import { ProjectModule } from '../project/project.module';
 @Module({
   providers: [CommandService, CommandGateway, AdminGateway],
   controllers: [CommandController],
-  exports: [CommandGateway],
+  exports: [CommandGateway, AdminGateway],
   imports: [
     UserModule,
     forwardRef(() => ProjectModule),

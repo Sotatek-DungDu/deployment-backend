@@ -1,5 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { spawn } from 'child_process';
+import { Socket } from 'socket.io';
+import { AdminGateway } from '../command/admin.gateway';
 import { CommandGateway } from '../command/command.gateway';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const kill = require('tree-kill');
@@ -10,8 +12,10 @@ export class ChildProcessService {
   constructor(
     @Inject(forwardRef(() => CommandGateway))
     private readonly commandGateway: CommandGateway,
+    @Inject(forwardRef(() => AdminGateway))
+    private readonly adminGateway: AdminGateway,
   ) {}
-  async spawnChildProcess(command, client, src): Promise<any> {
+  async spawnChildProcess(command, client: Socket, src): Promise<any> {
     return new Promise((resolve, reject) => {
       if (typeof command !== 'string') {
         reject(`command '${command}' is not string`);
@@ -47,19 +51,25 @@ export class ChildProcessService {
     });
   }
 
-  async perform(command, client): Promise<any> {
-    await this.spawnChildProcess(command, client, '');
-  }
+  // async perform(command, client): Promise<any> {
+  //   await this.spawnChildProcess(command, client, '');
+  // }
 
-  async onData(data, rs, client) {
+  async onData(data, rs, client: Socket) {
     rs.returnValues = data;
-    if (client) this.commandGateway.returnSocketData(client, rs);
+    if (client.nsp.name === '/command')
+      this.commandGateway.returnSocketData(client, rs);
+    if (client.nsp.name === '/admin')
+      this.adminGateway.returnSocketData(client, rs);
     return rs;
   }
 
-  async onError(e, rs, client) {
+  async onError(e, rs, client: Socket) {
     rs.errorValues = e;
-    if (client) this.commandGateway.returnSocketData(client, rs);
+    if (client.nsp.name === '/command')
+      this.commandGateway.returnSocketData(client, rs);
+    if (client.nsp.name === '/admin')
+      this.adminGateway.returnSocketData(client, rs);
     return rs;
   }
 

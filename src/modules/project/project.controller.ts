@@ -39,13 +39,23 @@ export class ProjectController {
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ description: 'Get Data Project' })
   async getProject(@UserEmail() email: string): Promise<Project[]> {
-    return await this.projectService.getProject(email);
+    return await this.projectService.getProjectByPermission(email);
   }
 
-  @Post('project')
+  @Get('admin/project')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOkResponse({ description: 'Create Project' })
+  @hasRoles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOkResponse({ description: 'Admin Get Data All Project' })
+  async adminGetProject(): Promise<Project[]> {
+    return await this.projectService.getAllProject();
+  }
+
+  @Post('admin/project')
+  @ApiBearerAuth()
+  @hasRoles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOkResponse({ description: 'Admin Create Project' })
   async createProject(
     @UserEmail() email: string,
     @Body() project: CreateProject,
@@ -53,10 +63,11 @@ export class ProjectController {
     return await this.projectService.createProject(email, project);
   }
 
-  @Post('project/:id')
+  @Post('admin/project/:id')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOkResponse({ description: 'Create Command By Id' })
+  @hasRoles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOkResponse({ description: 'Admin Create Command By Id' })
   async createCommand(
     @Param('id') project_id: string,
     @Body() command: CreateCommand,
@@ -76,12 +87,12 @@ export class ProjectController {
   //   return await this.projectService.performAction(project_id, email, action);
   // }
 
-  @Post('project/permissions/:id')
+  @Post('admin/project/permissions/:id')
   @ApiBearerAuth()
   @hasRoles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @DecoratorText()
-  @ApiOkResponse({ description: 'Add Permissions' })
+  @ApiOkResponse({ description: 'Admin Add Project Permissions' })
   async addPermissions(
     @Param('id') project_id: string,
     @PlainBody() email: string,

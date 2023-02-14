@@ -9,10 +9,10 @@ import { InputCommand } from './dto/input-command.dto';
 export class CommandController {
   constructor(private readonly commandService: CommandService) {}
 
-  @Post('command')
-  async processCommmand(@Body() command: InputCommand): Promise<any> {
-    return await this.commandService.processCommmand(command);
-  }
+  // @Post('command')
+  // async processCommmand(@Body() command: InputCommand): Promise<any> {
+  //   return await this.commandService.processCommmand(command);
+  // }
 
   @Post('command/kill')
   @DecoratorText()

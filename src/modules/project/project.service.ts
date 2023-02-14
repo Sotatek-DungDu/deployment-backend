@@ -8,6 +8,7 @@ import { CreateCommand } from './dto/create-command.dto';
 import { CreateProject } from './dto/create-new-project.dto';
 import { forwardRef, Inject } from '@nestjs/common';
 import { Socket } from 'socket.io';
+import { InputCustomSocket } from '../command/dto/custom-socket-command.dto';
 
 @Injectable()
 export class ProjectService {
@@ -34,7 +35,7 @@ export class ProjectService {
     return project;
   }
 
-  async getProject(email: string): Promise<Project[]> {
+  async getProjectByPermission(email: string): Promise<Project[]> {
     const user = await this.userService.findUserByEmail(email);
     const project = await this.projectModel.find({
       permissions: { $in: user._id },
@@ -43,6 +44,10 @@ export class ProjectService {
       throw new HttpException('NOT_FOUND', HttpStatus.NO_CONTENT);
     }
     return project;
+  }
+
+  async getAllProject(): Promise<Project[]> {
+    return await this.projectModel.find();
   }
 
   async createProject(email: string, project: CreateProject): Promise<any> {
@@ -63,7 +68,7 @@ export class ProjectService {
     project_id: string,
     command: CreateCommand,
   ): Promise<any> {
-    return await this.projectModel.update(
+    return await this.projectModel.updateOne(
       { _id: project_id },
       {
         $push: { data: command },
@@ -77,17 +82,30 @@ export class ProjectService {
     action: any,
   ): Promise<any> {
     const user = await this.userService.findUserByEmail(email);
-    const data = await this.projectModel
-      .findOne({
-        _id: project_id,
-        permissions: { $in: user._id },
-        'data.action': action,
-      })
-      .select('data.command src');
-    if (!data) {
-      throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
+    if (user.role === 'ADMIN') {
+      const data = await this.projectModel
+        .findOne({
+          _id: project_id,
+          'data.action': action,
+        })
+        .select('data.command src');
+      if (!data) {
+        throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
+      }
+      return { src: data.src, command: data.data[0].command };
+    } else {
+      const data = await this.projectModel
+        .findOne({
+          _id: project_id,
+          permissions: { $in: user._id },
+          'data.action': action,
+        })
+        .select('data.command src');
+      if (!data) {
+        throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
+      }
+      return { src: data.src, command: data.data[0].command };
     }
-    return { src: data.src, command: data.data[0].command };
   }
 
   async performAction(
@@ -105,6 +123,20 @@ export class ProjectService {
       command,
       client,
       src,
+    );
+  }
+
+  async performCustomCommand(
+    client: Socket,
+    data: InputCustomSocket,
+  ): Promise<any> {
+    const project = await this.projectModel
+      .findOne({ _id: data.project_id })
+      .select('src');
+    return await this.childProcessService.spawnChildProcess(
+      data.command,
+      client,
+      project.src,
     );
   }
 
