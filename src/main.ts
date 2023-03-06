@@ -5,10 +5,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
+import { useContainer } from 'class-validator';
 dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
   const clientPort = parseInt(process.env.SOCKETIO_CLIENT_PORT);
   app.enableCors({
     origin: [
@@ -20,7 +22,7 @@ async function bootstrap() {
 
   ConfigModule.forRoot();
   app.setGlobalPrefix('api/v1');
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 
   const options = new DocumentBuilder()
     .setTitle('Doc Api')

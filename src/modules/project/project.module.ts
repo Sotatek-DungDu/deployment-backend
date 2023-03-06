@@ -6,6 +6,7 @@ import { ProjectController } from './project.controller';
 import { ProjectService } from './project.service';
 import { UserModule } from '../user/user.module';
 import { CommandModule } from '../command/command.module';
+import { UniqueValidator } from './checkunique.decorator';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'Project', schema: ProjectSchema }]),
@@ -14,7 +15,7 @@ import { CommandModule } from '../command/command.module';
     forwardRef(() => ChildProcessModule),
   ],
   controllers: [ProjectController],
-  providers: [ProjectService],
+  providers: [ProjectService, UniqueValidator],
   exports: [ProjectService],
 })
 export class ProjectModule {}

@@ -1,11 +1,6 @@
 import { ProjectService } from './project.service';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserEmail } from 'shares/decorators/get-user-email.decorator';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { CreateProject } from './dto/create-new-project.dto';
@@ -21,7 +16,7 @@ import { PlainBody } from 'shares/decorators/plainbody.decorator';
 @Controller()
 @ApiTags('Project manage')
 export class ProjectController {
-  constructor(private readonly projectService: ProjectService) { }
+  constructor(private readonly projectService: ProjectService) {}
 
   @Get('project/:id')
   @ApiBearerAuth()
